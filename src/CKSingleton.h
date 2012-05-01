@@ -16,7 +16,7 @@
   \
   - (id)init {\
     if((self = [super init])) {\
-      [self initSingleton];\
+      IF_ARC(self =,) [self initSingleton];\
     }\
     return self;\
   }
@@ -35,26 +35,28 @@
   }\
   \
   + (id)allocWithZone:(NSZone *)zone {\
-    return [[self shared##Klass] retain];\
+    return IF_ARC([self shared##Klass], [[self shared##Klass] retain]);\
   }\
   \
   - (id)copyWithZone:(NSZone *)zone {\
     return self;\
   }\
   \
-  - (id)retain {\
-    return self;\
-  }\
-  \
-  - (NSUInteger)retainCount {\
-    return NSUIntegerMax;\
-  }\
-  \
-  - (void)release {}\
-  \
-  - (id)autorelease {\
-    return self;\
-  }\
+  IF_ARC(, \
+    - (id)retain {\
+      return self;\
+    }\
+    \
+    - (NSUInteger)retainCount {\
+      return NSUIntegerMax;\
+    }\
+    \
+    - (void)release {}\
+    \
+    - (id)autorelease {\
+      return self;\
+    }\
+  ) /*end IF_ARC */ \
   \
   + (BOOL)isShared##Klass##Present {\
     return shared##Klass != nil;\
@@ -63,7 +65,7 @@
   - (id)init {\
     if(![[self class] isShared##Klass##Present]) {\
       if((self = [super init])) {\
-        [self initSingleton];\
+        IF_ARC(self =,) [self initSingleton];\
       }\
     }\
     return self;\
